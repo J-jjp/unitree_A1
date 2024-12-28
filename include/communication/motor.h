@@ -10,54 +10,61 @@ class motor
 {
 
 public:
-    motor(float max_,float min_,std::shared_ptr<Uart> serial = nullptr) 
-    : max_pose(max_),
-      min_pose(min_),
-      serial_(serial)
+    motor(int n,float amount,float max_,int dir_,std::shared_ptr<Uart> serial = nullptr) 
+    :max_pose(max_),
+     dir(dir_),
+     serial_(serial)
     {
         if (serial_ == nullptr)
         {
             serial_ = std::make_shared<Uart>("/dev/ttyUSB0");
         }
-    };
-    ~motor()
-    {}
-    void motor_enable(int n) // 添加电机id
-    {
-        cmd.mode = 10;
         cmd.id = n;
+        motor_init();
+        if (dir == 1)
+        {
+            pose=start_pose+amount;
+        }
+        else if(dir == -1){
+            pose=start_pose-amount;
+        }
+    };
+    float recv_pose(){
+        if (dir == 1)
+        {
+            return pose+;
+        }
+        else if(dir == -1){
+            pose=start_pose+amout
+        }
     }
-    void set_motor(int id, float kp, float kd, float q, float dq, float tau) // 力位混合控制
+    ~motor(){}
+    void set_motor(float kp, float kd, float q, float dq, float tau) // 力位混合控制
     {
-        cmd.mode = 10;
-        cmd.id = id;
         cmd.K_P=std::max(-0.03f, std::min(kp, 0.03f));
-        cmd.K_W=std::max(-5.f, std::min(kd, 5.f));
+        cmd.K_W=std::max(-5.5f, std::min(kd, 5.5f));
         cmd.T=std::max(-0.5f, std::min(tau, 0.5f));
         cmd.Pos = q;
         cmd.W = dq;
-        std::cout<<"cmd.q"<<q<<std::endl;
-        if (motor_limit(id)){
-            std::cout <<  "motor.cmd: "    << cmd.Pos     <<  std::endl;
-            std::cout <<  "motor.dq: " << cmd.W <<  std::endl;
+        // std::cout<<"cmd.q"<<q<<std::endl;
+        if (motor_limit()){
+            // std::cout <<  "motor.cmd: "    << cmd.Pos     <<  std::endl;
+            // std::cout <<  "motor.dq: " << cmd.W <<  std::endl;
             motor_sendRecv();
         }
     }
-    void set_motor_pose(int n, float pose) // 位置模式
+    void set_motor_pose(float pose) // 位置模式
     {   
-        motor_enable(n);
         cmd.K_P = rotor_kp;
         cmd.K_W = rotor_kd;
         cmd.Pos = pose;
         cmd.W = 0.0;
         cmd.T = 0;
-        if (motor_limit(n))
+        if (motor_limit())
             motor_sendRecv();
     }
-    void set_motor_disable(int n, float kd) // 阻尼模式
+    void set_motor_disable(float kd) // 阻尼模式
     {
-        cmd.mode = 10;
-        cmd.id = n;
         cmd.K_P = 0.;
         cmd.K_W = kd;
         cmd.Pos = 0;
@@ -66,10 +73,8 @@ public:
         motor_sendRecv();
         // usleep(200);
     }
-    void set_motor_torque(int n, float t) // 力矩模式
+    void set_motor_torque(float t) // 力矩模式
     {
-        cmd.mode = 10;
-        cmd.id = n;
         cmd.K_P = 0.;
         cmd.K_W = 0;
         cmd.Pos = 0;
@@ -83,6 +88,9 @@ public:
     MotorCmd cmd;
     MotorData data;
     std::shared_ptr<Uart> serial_;
+    float start_pose= 0;
+    int dir;
+    float pose;
     float output_kp = 25;
     float output_kd = 0.6;
     float gear_ratio = 9.1;
@@ -91,17 +99,17 @@ public:
     float max_pose;
     float min_pose;
 private:
-    bool motor_limit(int n)//限制力矩
+    bool motor_limit()//限制力矩
     {
         if (max_pose==0||min_pose==0)
         {
-            set_motor_torque(n,0.2);
+            set_motor_torque(0.2);
             return false;
         }
         // if(data.q<min_pose+1.5||data.q>max_pose-1.5){
         if(data.Pos<min_pose+0.5||data.Pos>max_pose-0.5){
             if(data.T>1||data.T<-1){
-                set_motor_disable(n,3);
+                set_motor_disable(5);
                 return false;
             }
         }
@@ -121,6 +129,23 @@ private:
             std::cout << "Please initialize the motor" << std::endl;
         }
         // usleep(200);
+    }
+    void motor_init(){
+        bool start = true;
+        while (start)
+        {
+            cmd.mode = 10;
+            cmd.K_P = 0.;
+            cmd.K_W = 0;
+            cmd.Pos = 0;
+            cmd.W = 0.0;
+            cmd.T = 0;
+            motor_sendRecv();
+            if(data.Pos>0&&data.Pos<6.28){
+                start_pose=data.Pos;
+                start=false;
+            }
+        }
     }
 };
 #endif
