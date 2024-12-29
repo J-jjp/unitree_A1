@@ -6,15 +6,13 @@
 #include <memory>
 #include <iostream>
 #include <algorithm>
-#define PI 3.141592653589793f;
+
 class motor
 {
 
 public:
-    motor(int n,float amount,float max_,float min_,int dir_,std::shared_ptr<Uart> serial = nullptr) 
+    motor(int n,float amount,int dir_,std::shared_ptr<Uart> serial = nullptr) 
     :_n(n),
-     max_pose(max_),
-     min_pose(min_),
      dir(dir_),
      serial_(serial)
     {
@@ -48,6 +46,7 @@ public:
         else if(dir == -1){
             return (zero_pose-data.Pos)/9.1;
         }
+        return 0;
     }
     ~motor(){}
     void set_motor(float kp, float kd, float q, float dq, float tau) // 力位混合控制
@@ -55,7 +54,7 @@ public:
         cmd.K_P=std::max(-0.03f, std::min(kp, 0.03f));
         cmd.K_W=std::max(-5.5f, std::min(kd, 5.5f));
         cmd.T=std::max(-0.5f, std::min(tau, 0.5f));
-        cmd.Pos = send_pose(q);
+        cmd.Pos = 0;
         cmd.W = dq;
         // std::cout<<"cmd.q"<<q<<std::endl;
         if (motor_limit()){
@@ -132,8 +131,10 @@ private:
         if (cmd.mode == 10)
         {
             serial_->SendRecv(cmd);
+            usleep(200);
             data = serial_->GetMotorData();
             usleep(200);
+            std::cout<<"data.p"<<data.Pos<<std::endl;
         }
         else
         {
@@ -166,6 +167,7 @@ public:
         else if(dir == -1){
             return  -_pose*9.1+zero_pose;
         }
+        return 0;
     }
 };
 #endif
