@@ -6,12 +6,15 @@
 #include <memory>
 #include <iostream>
 #include <algorithm>
+#define PI 3.141592653589793f;
 class motor
 {
 
 public:
-    motor(int n,float amount,float max_,int dir_,std::shared_ptr<Uart> serial = nullptr) 
-    :max_pose(max_),
+    motor(int n,float amount,float max_,float min_,int dir_,std::shared_ptr<Uart> serial = nullptr) 
+    :_n(n),
+     max_pose(max_),
+     min_pose(min_),
      dir(dir_),
      serial_(serial)
     {
@@ -23,19 +26,27 @@ public:
         motor_init();
         if (dir == 1)
         {
-            pose=start_pose+amount;
+            zero_pose=start_pose+amount;
+            if(n==2){
+                max_pose = zero_pose - 5;
+                min_pose = start_pose;
+            }      
         }
         else if(dir == -1){
-            pose=start_pose-amount;
-        }
+            zero_pose=start_pose-amount;
+            if(n==2){
+                max_pose = start_pose;
+                min_pose = zero_pose + 5;
+            }  
+        }  
     };
     float recv_pose(){
         if (dir == 1)
         {
-            return pose+;
+            return (-zero_pose+data.Pos)/9.1;
         }
         else if(dir == -1){
-            pose=start_pose+amout
+            return (zero_pose-data.Pos)/9.1;
         }
     }
     ~motor(){}
@@ -44,7 +55,7 @@ public:
         cmd.K_P=std::max(-0.03f, std::min(kp, 0.03f));
         cmd.K_W=std::max(-5.5f, std::min(kd, 5.5f));
         cmd.T=std::max(-0.5f, std::min(tau, 0.5f));
-        cmd.Pos = q;
+        cmd.Pos = send_pose(q);
         cmd.W = dq;
         // std::cout<<"cmd.q"<<q<<std::endl;
         if (motor_limit()){
@@ -89,8 +100,9 @@ public:
     MotorData data;
     std::shared_ptr<Uart> serial_;
     float start_pose= 0;
+    int _n;
     int dir;
-    float pose;
+    float zero_pose;
     float output_kp = 25;
     float output_kd = 0.6;
     float gear_ratio = 9.1;
@@ -120,7 +132,6 @@ private:
         if (cmd.mode == 10)
         {
             serial_->SendRecv(cmd);
-            usleep(200);
             data = serial_->GetMotorData();
             usleep(200);
         }
@@ -128,7 +139,6 @@ private:
         {
             std::cout << "Please initialize the motor" << std::endl;
         }
-        // usleep(200);
     }
     void motor_init(){
         bool start = true;
@@ -141,10 +151,20 @@ private:
             cmd.W = 0.0;
             cmd.T = 0;
             motor_sendRecv();
-            if(data.Pos>0&&data.Pos<6.28){
+            if(data.Pos>0.2&&data.Pos<6.0){
                 start_pose=data.Pos;
                 start=false;
             }
+        }
+    }
+public:
+    float send_pose(float _pose){
+        if (dir == 1)
+        {
+            return  _pose*9.1+zero_pose;
+        }
+        else if(dir == -1){
+            return  -_pose*9.1+zero_pose;
         }
     }
 };

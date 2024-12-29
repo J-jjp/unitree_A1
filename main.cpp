@@ -5,10 +5,9 @@
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
-#define FL_hip_max 6.f
-#define FL_hip_min -6.f
-#define FL_hip_start_joint 1.42f
+#define FL_calf_dir 1
 
+#define FR_calf_dir -1
 int main() {
   // Uart serial("/dev/ttyUSB0");
   std::shared_ptr<Uart>  uart = std::make_shared<Uart>("/dev/ttyUSB0");

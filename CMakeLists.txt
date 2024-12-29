@@ -3,9 +3,10 @@ cmake_minimum_required(VERSION 3.10)
 project(serial_port)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
  
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/communication)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/communication 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/control)
  
  
 add_executable(${PROJECT_NAME} main.cpp)
  
-target_link_libraries(${PROJECT_NAME} m)
+target_link_libraries(${PROJECT_NAME} m src/control)
