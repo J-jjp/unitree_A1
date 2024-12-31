@@ -76,9 +76,9 @@ int main() {
     std::cout<<"FLid"<<(int)FL_motor_1->data.motor_id;
     FR_motor_1->set_motor(0.015,2,FR_pose_1,4,0.3);
     RL_motor_1->set_motor(0.015,2,RL_pose_1,-4,-0.3);
-    RR_motor_1->set_motor(0.015,2,RR_pose_1,4,0.3);
+    RR_motor_1->set_motor(0.015,2,RR_pose_1,4,0.3);++++++++++++++++++++++++
     // RR_motor_1->set_motor(0.015,2,RR_pose_1,4,0.3);
-      FL_motor_2->set_motor(0.0,0,0,0,0);
+    FL_motor_2->set_motor(0.0,0,0,0,0);
     FR_motor_2->set_motor(0.0,0,0,0,0);
       RL_motor_2->set_motor(0.0,0,0,0,0);
           RR_motor_2->set_motor(0.0,0,0,0,0);

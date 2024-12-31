@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/toe/unitree_A1/build",
+  "command": "/usr/bin/c++   -I/home/toe/unitree_A1/include/communication -I/home/toe/unitree_A1/include/control    -o CMakeFiles/serial_port.dir/main.cpp.o -c /home/toe/unitree_A1/main.cpp",
+  "file": "/home/toe/unitree_A1/main.cpp"
+}
+]
