@@ -1,1 +1,1 @@
-/usr/bin/c++     CMakeFiles/serial_port.dir/main.cpp.o  -o serial_port  -lm 
+/usr/bin/c++ CMakeFiles/serial_port.dir/main.cpp.o CMakeFiles/serial_port.dir/src/control/leg_control.cpp.o -o serial_port  -lm 

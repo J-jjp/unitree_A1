@@ -1,8 +1,8 @@
-#ifndef MOTOR_MSG
-#define MOTOR_MSG
+#ifndef MOTOR_MSG_H
+#define MOTOR_MSG_H
 
 #include <stdint.h>
-int16_t q15_t;
+extern int16_t q15_t;
 
 #pragma pack(1)
 

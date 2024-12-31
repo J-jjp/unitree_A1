@@ -58,13 +58,13 @@ public:
             }  
         }  
     };
-    float recv_pose(){
+    float recv_pose(float p){
         if (dir == 1)
         {
-            return (-zero_pose+data.Pos)/9.1;
+            return (-zero_pose+p)/9.1;
         }
         else if(dir == -1){
-            return (zero_pose-data.Pos)/9.1;
+            return (zero_pose-p)/9.1;
         }
         return 0;
     }
