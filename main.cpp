@@ -5,6 +5,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
+#include "leg_control.h"
 #define FL_calf_dir 1
 
 #define FR_calf_dir -1
@@ -70,18 +71,20 @@ int main() {
     // FR_motor_2->set_motor(0.02,2,FR_pose_2,-1,-0.05);
     // RL_motor_2->set_motor(0.02,2,RR_pose_2,1,0.05);
     // RR_motor_2->set_motor(0.02,2,RR_pose_2,-1,-0.05);
-          FL_motor_0->set_motor(0.0,0,0,0,0);
-          FL_motor_1->set_motor(0.0,0,0,0,0);
+    FL_motor_0->set_motor(0.0,0,0,0,0);
+    std::cout<<"FL0id"<<(int)FL_motor_0->data.motor_id;
+    FL_motor_1->set_motor(0.0,0,0,0,0);
     // FL_motor_1->set_motor(0.015,2,FL_pose_1,-4,-0.3);
-    std::cout<<"FLid"<<(int)FL_motor_1->data.motor_id;
+    std::cout<<"FL1id"<<(int)FL_motor_1->data.motor_id;
     FR_motor_1->set_motor(0.015,2,FR_pose_1,4,0.3);
     RL_motor_1->set_motor(0.015,2,RL_pose_1,-4,-0.3);
-    RR_motor_1->set_motor(0.015,2,RR_pose_1,4,0.3);++++++++++++++++++++++++
+    RR_motor_1->set_motor(0.015,2,RR_pose_1,4,0.3);
     // RR_motor_1->set_motor(0.015,2,RR_pose_1,4,0.3);
     FL_motor_2->set_motor(0.0,0,0,0,0);
+    std::cout<<"FL2id"<<(int)FL_motor_2->data.motor_id;
     FR_motor_2->set_motor(0.0,0,0,0,0);
-      RL_motor_2->set_motor(0.0,0,0,0,0);
-          RR_motor_2->set_motor(0.0,0,0,0,0);
+    RL_motor_2->set_motor(0.0,0,0,0,0);
+    RR_motor_2->set_motor(0.0,0,0,0,0);
       // FL_motor_0->set_motor(0.015,2,FL_pose_0,-4,-0.3);
       // FR_motor_0->set_motor(0.015,2,FR_pose_0,4,0.3);
       // RL_motor_0->set_motor(0.015,2,RL_pose_0,4,0.3);

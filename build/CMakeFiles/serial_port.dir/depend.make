@@ -4,5 +4,6 @@
 CMakeFiles/serial_port.dir/main.cpp.o: ../include/communication/motor.h
 CMakeFiles/serial_port.dir/main.cpp.o: ../include/communication/motor_msg.h
 CMakeFiles/serial_port.dir/main.cpp.o: ../include/communication/uart.hpp
+CMakeFiles/serial_port.dir/main.cpp.o: ../include/control/leg_control.h
 CMakeFiles/serial_port.dir/main.cpp.o: ../main.cpp
 

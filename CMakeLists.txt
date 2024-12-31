@@ -4,7 +4,7 @@ project(serial_port)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
  
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/communication 
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/control)
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/control/)
  
  
 add_executable(${PROJECT_NAME} main.cpp)
