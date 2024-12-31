@@ -25,16 +25,36 @@ public:
         if (dir == 1)
         {
             zero_pose=start_pose+amount;
-            if(n==2){
-                max_pose = zero_pose - 5;
+            if (n == 0)
+            {
+                max_pose = start_pose+1*9.1;
+                min_pose = zero_pose-1*9.1;
+            }
+            else if (n ==1)
+            {
+                max_pose = start_pose+0.3628*9.1;
+                min_pose = zero_pose + 2;
+            }
+            else if(n==2){
+                max_pose = zero_pose - 2;
                 min_pose = start_pose;
             }      
         }
         else if(dir == -1){
             zero_pose=start_pose-amount;
+            if (n == 0)
+            {
+                max_pose = zero_pose+1*9.1;
+                min_pose = start_pose-1*9.1;
+            }
+            if (n ==1)
+            {
+                max_pose = zero_pose - 2;
+                min_pose = start_pose-0.3628*9.1;
+            }
             if(n==2){
                 max_pose = start_pose;
-                min_pose = zero_pose + 5;
+                min_pose = zero_pose + 2;
             }  
         }  
     };
@@ -51,11 +71,19 @@ public:
     ~motor(){}
     void set_motor(float kp, float kd, float q, float dq, float tau) // 力位混合控制
     {
+        cmd.T=std::max(-0.5f, std::min(tau, 0.5f));
+        cmd.W = dq;
+        cmd.T=cmd.T;
         cmd.K_P=std::max(-0.03f, std::min(kp, 0.03f));
         cmd.K_W=std::max(-5.5f, std::min(kd, 5.5f));
-        cmd.T=std::max(-0.5f, std::min(tau, 0.5f));
-        cmd.Pos = 0;
-        cmd.W = dq;
+        if (q==0)
+        {
+            cmd.Pos = 0;
+        }
+        else{
+            cmd.Pos = send_pose(q);
+            // std::cout<<"cmd.q"<<cmd.Pos<<std::endl;
+        }
         // std::cout<<"cmd.q"<<q<<std::endl;
         if (motor_limit()){
             // std::cout <<  "motor.cmd: "    << cmd.Pos     <<  std::endl;
@@ -131,10 +159,9 @@ private:
         if (cmd.mode == 10)
         {
             serial_->SendRecv(cmd);
-            usleep(200);
             data = serial_->GetMotorData();
-            usleep(200);
-            std::cout<<"data.p"<<data.Pos<<std::endl;
+            usleep(2000);
+            // std::cout<<"data.p"<<data.Pos<<std::endl;
         }
         else
         {
@@ -145,6 +172,7 @@ private:
         bool start = true;
         while (start)
         {
+            std::cout<<"初始化"<<data.Pos<<std::endl;
             cmd.mode = 10;
             cmd.K_P = 0.;
             cmd.K_W = 0;
@@ -152,7 +180,7 @@ private:
             cmd.W = 0.0;
             cmd.T = 0;
             motor_sendRecv();
-            if(data.Pos>0.2&&data.Pos<6.0){
+            if(data.Pos>0.1&&data.Pos<6.2){
                 start_pose=data.Pos;
                 start=false;
             }
@@ -169,6 +197,7 @@ public:
         }
         return 0;
     }
+    
 };
 #endif
 //使用示例
