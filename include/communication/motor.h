@@ -11,9 +11,10 @@ class motor
 {
 
 public:
-    motor(int n,float amount,int dir_,std::shared_ptr<Uart> serial = nullptr) 
+    motor(int n,float amount_,int dir_,std::shared_ptr<Uart> serial = nullptr) 
     :_n(n),
      dir(dir_),
+     amount(amount_),
      serial_(serial)
     {
         if (serial_ == nullptr)
@@ -22,41 +23,6 @@ public:
         }
         cmd.id = n;
         motor_init();
-        if (dir == 1)
-        {
-            zero_pose=start_pose+amount;
-            if (n == 0)
-            {
-                max_pose = start_pose+1*9.1;
-                min_pose = zero_pose-1*9.1;
-            }
-            else if (n ==1)
-            {
-                max_pose = start_pose+0.3628*9.1;
-                min_pose = zero_pose + 2;
-            }
-            else if(n==2){
-                max_pose = zero_pose - 2;
-                min_pose = start_pose;
-            }      
-        }
-        else if(dir == -1){
-            zero_pose=start_pose-amount;
-            if (n == 0)
-            {
-                max_pose = zero_pose+1*9.1;
-                min_pose = start_pose-1*9.1;
-            }
-            if (n ==1)
-            {
-                max_pose = zero_pose - 2;
-                min_pose = start_pose-0.3628*9.1;
-            }
-            if(n==2){
-                max_pose = start_pose;
-                min_pose = zero_pose + 2;
-            }  
-        }  
     };
     float recv_pose(float p){
         if (dir == 1)
@@ -85,11 +51,7 @@ public:
             // std::cout<<"cmd.q"<<cmd.Pos<<std::endl;
         }
         // std::cout<<"cmd.q"<<q<<std::endl;
-        if (motor_limit()){
-            // std::cout <<  "motor.cmd: "    << cmd.Pos     <<  std::endl;
-            // std::cout <<  "motor.dq: " << cmd.W <<  std::endl;
-            motor_sendRecv();
-        }
+        motor_sendRecv();
     }
     void set_motor_pose(float pose) // 位置模式
     {   
@@ -98,8 +60,7 @@ public:
         cmd.Pos = pose;
         cmd.W = 0.0;
         cmd.T = 0;
-        if (motor_limit())
-            motor_sendRecv();
+        motor_sendRecv();
     }
     void set_motor_disable(float kd) // 阻尼模式
     {
@@ -121,11 +82,48 @@ public:
         cmd.T=std::max(-0.5f, std::min(cmd.T, 0.5f));
         motor_sendRecv();
     }
-
+    void set_limt(){
+        if (dir == 1)
+        {
+            zero_pose=start_pose+amount;
+            if (_n == 0)
+            {
+                max_pose = std::max(recv_pose(zero_pose-1*9.1),recv_pose(start_pose+1*9.1));
+                min_pose = std::min(recv_pose(zero_pose-1*9.1),recv_pose(start_pose+1*9.1));
+            }
+            else if (_n ==1)
+            {
+                max_pose = std::max(recv_pose(zero_pose + 2),recv_pose(start_pose+0.3628*9.1));
+                min_pose = std::min(recv_pose(zero_pose + 2),recv_pose(start_pose+0.3628*9.1));
+            }
+            else if(_n==2){
+                max_pose = std::max(recv_pose(zero_pose - 3),recv_pose(start_pose-5));
+                min_pose = std::min(recv_pose(zero_pose - 3),recv_pose(start_pose-5));
+            }      
+        }
+        else if(dir == -1){
+            zero_pose=start_pose-amount;
+            if (_n == 0)
+            {
+                max_pose = std::max(recv_pose(zero_pose+1*9.1),recv_pose(start_pose-1*9.1));
+                min_pose = std::min(recv_pose(zero_pose+1*9.1),recv_pose(start_pose-1*9.1));
+            }
+            if (_n ==1)
+            {
+                max_pose = std::max(recv_pose(zero_pose + 2),recv_pose(start_pose-0.3628*9.1));
+                min_pose = std::min(recv_pose(zero_pose + 2),recv_pose(start_pose-0.3628*9.1));
+            }
+            if(_n==2){
+                max_pose = std::max(recv_pose(zero_pose - 3),recv_pose(start_pose+5));
+                min_pose = std::min(recv_pose(zero_pose - 3),recv_pose(start_pose+5));
+            }  
+        }  
+    }
 public:
     MotorCmd cmd;
     MotorData data;
     std::shared_ptr<Uart> serial_;
+    float amount;
     float start_pose= 0;
     int _n;
     int dir;
@@ -138,30 +136,15 @@ public:
     float max_pose;
     float min_pose;
 private:
-    bool motor_limit()//限制力矩
-    {
-        if (max_pose==0||min_pose==0)
-        {
-            set_motor_torque(0.2);
-            return false;
-        }
-        // if(data.q<min_pose+1.5||data.q>max_pose-1.5){
-        if(data.Pos<min_pose+0.5||data.Pos>max_pose-0.5){
-            if(data.T>1||data.T<-1){
-                set_motor_disable(5);
-                return false;
-            }
-        }
-        return true;
-    }
+
     void motor_sendRecv() // 发送数据
     {
         if (cmd.mode == 10)
         {
             serial_->SendRecv(cmd);
+            usleep(200);
             data = serial_->GetMotorData();
-            usleep(2000);
-            // std::cout<<"data.p"<<data.Pos<<std::endl;
+            usleep(200);
         }
         else
         {

@@ -4,7 +4,8 @@ project(serial_port)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 file(GLOB DOG_SRCS 
 "src/control/*.cpp"
-"main.cpp")
+"main.cpp"
+)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/communication 
         ${CMAKE_CURRENT_SOURCE_DIR}/include/control)
  
